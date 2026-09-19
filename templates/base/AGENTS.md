@@ -22,8 +22,8 @@ If `map.md` does not resolve the task to a module, or the code is not where a ca
 
 ## Commands
 Commands are defined in `.ai/commands/<name>.md`. If your IDE has no slash commands, read that file and follow it.
-- `/plan "<requirement>"` — read map + cards, ask questions, WRITE NO CODE, emit `.ai/plans/active/P-###-slug.md`. Split big requirements into several plans. End session after.
-- `/work P-###` — fresh session. Load plan + cards it names. Nothing else. No scope expansion. Tick checklist.
+- `/plan "<requirement>"` — read map + cards, ask questions, WRITE NO CODE, emit `.ai/plans/active/P-###-slug.md`. Split big requirements into several plans. Then show the plan, ask the user to approve, and on approval continue with `/work` in the same session.
+- `/work P-###` — same session as `/plan`. The plan file (not chat memory) is the source of truth: re-read it, load the cards it names. No scope expansion. Tick checklist. When checks pass, continue with `/sync`.
 - `/sync` — regenerate card frontmatter, prompt for new Invariants/Gotchas, update map, move plan to `done/`.
 - `/analyze` — existing code: draft `map.md` + one card per module. Never invent Invariants.
 - Pending work = files in `.ai/plans/active/`. List them when asked what is left.

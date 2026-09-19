@@ -9,6 +9,7 @@ Goal metric: **tokens-to-context** — 1–2k instead of 30–80k. Full design: 
 ```bash
 node src/cli.mjs create my-site            # interactive: stack + skill checkboxes
 node src/cli.mjs create my-site --stack next-ts --skills all --yes
+node src/cli.mjs create my-site --dir path/to/repo --existing ...   # add into a non-empty repo; existing files are kept
 node src/cli.mjs add-skill <name>          # inside a project, later
 node src/cli.mjs skills                    # list catalog
 ```
@@ -21,7 +22,7 @@ node src/cli.mjs skills                    # list catalog
 - `README.md` — per-project context, always loaded.
 - `.ai/map.md` — capability → module map (always loaded, ~500 tokens).
 - `src/features/<name>/_ai.md` — per-module cards, loaded on demand (generated frontmatter + hand-written Invariants/Gotchas).
-- `.ai/plans/{active,done}/` — plans are files. Flow: `/plan` → fresh session → `/work P-###` → `/sync`.
+- `.ai/plans/{active,done}/` — plans are files. Flow, all in one session: `/plan` → user approves → `/work P-###` → `/sync`.
 - `.ai/skills-index.md` — auto-regenerated index of installed skills (hooks on session start + file writes).
 - `.ai/rules/` — `core` (baseline), `conventions` (naming, folder layout, modularization, code style; always loaded before writing code), `frontend` (React), `theming`, `security`, `stack` + framework file (`nextjs` / `backend` / `python`), `testing`, `contract` (split stacks).
 - Lint enforces the mechanical conventions: naming, `import type`, no `console`, `===`, file size, and feature imports only through `@/features/<name>` (surface).

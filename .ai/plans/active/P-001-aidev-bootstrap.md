@@ -229,15 +229,16 @@ Decisions changed or added by the owner after this plan was written. §2/§3 abo
 | # | Change | Reasoning |
 |---|---|---|
 | R1 | **Scaffolder built now** (`aidev create`, `add-skill`, `skills`), reversing the §3 rejection of `init`/CLI/skills checkbox UI. Cheap form only: plain file copy of `templates/base` + stack overlays + chosen skills. No resolver, no deep-merge, no hash-manifest upgrade (those stay rejected). | Owner wants a Vite-style tool so the layer is not recreated per project |
-| R2 | **Fresh session instead of `/compact` stays** (D10 unchanged) although the owner first asked for `/compact` | Agent cannot self-invoke `/compact`; it is agent-specific; the plan file already is the compaction |
+| R2 | ~~Fresh session instead of `/compact` stays~~ **Superseded by R8.** | (kept for history) |
 | R3 | **Vendor-neutral output**: `AGENTS.md` is the router (Cursor, Codex, Copilot read it); `CLAUDE.md` is a one-line `@AGENTS.md` import; commands live in `.ai/commands/` with Claude and Cursor pointer files; skills install to `.ai/skills/` | Projects may be opened in Cursor or other IDEs |
 | R4 | **Skills are local only**: catalog in `skills/`, copied per project, index `.ai/skills-index.md` auto-regenerated (Claude hooks, `predev`/`prebuild`, `add-skill`). `caveman` is a core skill, always installed. Skills are not auto-injected; the agent opens one only when the task matches | No dependence on system plugins; unused skills cost no tokens |
 | R5 | **Three stacks shipped**: `next-ts`, `react-ts-node` (zod contract), `react-ts-python` (OpenAPI contract + `contract:check` drift gate). Shared React/Vite part in `templates/_web` | D2 / T5. Each was scaffolded, installed and run through typecheck, lint, test, build |
 | R6 | **New rules**: `conventions.md` (naming, layout, modularization, code style), `solid.md`, `frontend.md`, framework files (`nextjs.md`, `backend.md`, `python.md`). Mechanical parts enforced by lint (naming, `import type`, no console, `===`, size, complexity, params, feature imports only via `@/features/<name>`); ruff `N`, `SIM`, `C90`, `PLR0913` | Readable, modular codebases; enforcement beats prose |
 | R7 | **Library registry**: `.ai/libs/` (index, template, 14 presets, process) plus `npm run check:libs` and a Claude Code hook. Adding, replacing or removing a dependency requires a rule file, one adapter module, a registry row and an ADR when it conflicts with a convention | Conventions must follow the libraries a project chooses |
+| R8 | **Fresh session removed. The whole flow runs in one session**: `/plan` -> user approves the plan -> `/work` -> `/sync`. Supersedes D10 and §6 ("END SESSION", "fresh session"). The plan file stays the source of truth (`/work` re-reads it instead of relying on chat memory), so a session can still be restarted safely, but nothing requires it. The approval step between plan and work is kept as the human gate. | Owner decision 2026-09-20: one continuous session is simpler; the fresh-session context savings (about 40k planning tokens) were judged not worth the friction. Trade-off: the planning conversation stays in context during `/work` |
 
 ### Status of §7 build order
-- T1 done. T3 and T4 (`plan`, `work`, `sync` commands) written, not yet exercised on a real feature. T5 done (see R5). T2 `analyze` written as a command, not validated.
+- T1 done. T3 and T4 (`plan`, `work`, `sync` commands) exercised once on a real feature (`saspot-home`, plan P-001 home hero) in a single session; see R8. T5 done (see R5). T2 `analyze` written as a command, not validated.
 - Not done, by decision: §8 validation experiment (owner skipped it).
 - Known gaps: Playwright `test:e2e` has no specs; only a `health` example feature per stack; rules referencing `lib/env`, `config.ts`, `config.py` say to create them with the first env var; Cursor/other IDEs have no hook, so they rely on the `AGENTS.md` instructions plus `npm run check:libs` and `/sync`.
 
@@ -251,5 +252,5 @@ Decisions changed or added by the owner after this plan was written. §2/§3 abo
 - [x] Conventions, SOLID, frontend and framework rules, lint enforcement
 - [x] Library registry, presets, `check:libs` + hook
 - [ ] T2 `analyze` validated on a real repo (skipped by owner decision)
-- [ ] T3 plan/work exercised on a real feature
-- [ ] T4 sync exercised on a real feature
+- [x] T3 plan/work exercised on a real feature (saspot-home, single session)
+- [x] T4 sync exercised on a real feature (saspot-home)

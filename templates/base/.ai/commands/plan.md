@@ -11,6 +11,6 @@ Goal: turn a requirement into a plan file. **Write NO code.**
    - Invariants at risk + how plan avoids them.
    - Decisions from Q&A. Explicit out-of-scope. Checklist.
 6. If the requirement needs a new library, check `.ai/libs/index.md` for an existing library with that role first (one per role; ask the user before replacing). List the library and "add `.ai/libs/<lib>.md` + registry row" in the plan checklist. If planning surfaces a constraint that should bind future code, draft an ADR in `.ai/decisions/` and list the `INV-#` line for each affected card. ADR with no INV = narrative only.
-7. Tell user: plan path, then "end this session; run `/work P-###` in a fresh one."
+7. Show the user the plan path and a short summary, and ask for approval or changes. On approval continue directly with `/work P-###` in this same session. Do not ask the user to start a new session.
 
 Never edit source files in this command.

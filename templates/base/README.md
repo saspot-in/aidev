@@ -15,4 +15,4 @@ __STACK_SUMMARY__
 - TODO (link ADRs in `.ai/decisions/`)
 
 ## Workflow
-Agent flow: `/plan` → fresh session → `/work P-###` → `/sync`. See `AGENTS.md`.
+Agent flow, all in one session: `/plan` → user approves → `/work P-###` → `/sync`. See `AGENTS.md`.

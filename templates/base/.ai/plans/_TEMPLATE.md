@@ -8,7 +8,7 @@
 <!-- One paragraph. What and why. -->
 
 ## Cards to load
-<!-- Only these are loaded by /work. -->
+<!-- Only these are loaded by /work. New feature with no card yet: write "none (new module <name>)" and list the rules and skills to load instead. -->
 - src/features/<name>/_ai.md
 
 ## Invariants at risk
@@ -19,6 +19,9 @@
 
 ## Out of scope
 <!-- Explicit. /work refuses to expand beyond this plan. -->
+
+## Deviations from plan
+<!-- /work fills this in when it had to differ from the plan (file names, extra files, dependency changes). -->
 
 ## Checklist
 - [ ] <step>

@@ -1,11 +1,12 @@
 #!/usr/bin/env node
 // aidev — scaffold a project with the agent context layer.
-//   aidev create [name] [--stack next-ts] [--skills a,b|all|none] [--yes]
+//   aidev create [name] [--stack next-ts] [--skills a,b|all|none] [--yes] [--dir path] [--existing]
 //   aidev add-skill <name...>        (run inside a project)
 //   aidev skills                     (list catalog)
 import { spawnSync } from "node:child_process";
-import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, renameSync, statSync, writeFileSync } from "node:fs";
-import { basename, dirname, join, resolve } from "node:path";
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, renameSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { basename, dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import * as p from "@clack/prompts";
 
@@ -158,18 +159,38 @@ async function create({ flags, pos }) {
   if (missing.length) throw new Error(`skill(s) not in catalog: ${missing.join(", ")}`);
 
   const target = resolve(process.cwd(), flags.dir ?? name);
-  if (existsSync(target) && readdirSync(target).length) throw new Error(`target not empty: ${target}`);
-  mkdirSync(target, { recursive: true });
+  if (existsSync(target) && readdirSync(target).length && !flags.existing) {
+    throw new Error(`target not empty: ${target} (pass --existing to add files without overwriting anything)`);
+  }
 
-  cpSync(join(TEMPLATES, "base"), target, { recursive: true });
-  for (const overlay of STACKS[stack].overlays) cpSync(join(TEMPLATES, overlay), target, { recursive: true });
-  for (const f of ["gitignore", "gitattributes"]) if (existsSync(join(target, f))) renameSync(join(target, f), join(target, `.${f}`));
-  replaceTokens(target, { __PROJECT_NAME__: slug(basename(name)), __STACK_SUMMARY__: STACKS[stack].summary });
-  installSkills(target, skills);
+  // Build in a staging dir, then merge into the target. Files already in the target are never overwritten.
+  const staging = mkdtempSync(join(tmpdir(), "aidev-"));
+  const skipped = [];
+  try {
+    cpSync(join(TEMPLATES, "base"), staging, { recursive: true });
+    for (const overlay of STACKS[stack].overlays) cpSync(join(TEMPLATES, overlay), staging, { recursive: true });
+    for (const f of ["gitignore", "gitattributes"]) if (existsSync(join(staging, f))) renameSync(join(staging, f), join(staging, `.${f}`));
+    replaceTokens(staging, { __PROJECT_NAME__: slug(basename(name)), __STACK_SUMMARY__: STACKS[stack].summary });
+    installSkills(staging, skills);
+    mkdirSync(target, { recursive: true });
+    cpSync(staging, target, {
+      recursive: true,
+      filter: (src, dest) => {
+        if (statSync(src).isFile() && existsSync(dest)) {
+          skipped.push(relative(staging, src).replaceAll("\\", "/"));
+          return false;
+        }
+        return true;
+      },
+    });
+  } finally {
+    rmSync(staging, { recursive: true, force: true });
+  }
 
-  const done = `Created ${target}\n  stack:  ${stack}\n  skills: ${skills.length ? skills.join(", ") : "none"}`;
+  const kept = skipped.length ? `\n  kept existing (not overwritten): ${skipped.join(", ")}` : "";
+  const done = `Created ${target}\n  stack:  ${stack}\n  skills: ${skills.length ? skills.join(", ") : "none"}${kept}`;
   const setup = STACKS[stack].setup ? `\n${STACKS[stack].setup}` : "";
-  const next = `cd ${basename(target)}\nnpm install${setup}\nnpm run check:budget\nnpm run dev`;
+  const next = `cd ${basename(target)}\nnpm install${setup}\nnpm run check:budget\nnpx playwright install chromium   # once, for e2e\nnpm run dev`;
   if (interactive) {
     p.note(next, "Next");
     p.outro(done);
