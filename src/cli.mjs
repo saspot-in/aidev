@@ -60,7 +60,19 @@ function readSkillMeta(dir) {
   const file = join(CATALOG, dir, "SKILL.md");
   const text = readFileSync(file, "utf8").replace(/\r\n/g, "\n");
   const fm = text.match(/^---\n([\s\S]*?)\n---/)?.[1] ?? "";
-  const get = (k) => fm.match(new RegExp(`^${k}:\\s*(.+)$`, "m"))?.[1]?.trim().replace(/^["']|["']$/g, "") ?? "";
+  const lines = fm.split("\n");
+  // single-line values, and YAML folded/literal blocks (`key: >` followed by indented lines)
+  const get = (key) => {
+    const at = lines.findIndex((l) => l.startsWith(`${key}:`));
+    if (at < 0) return "";
+    let value = lines[at].slice(key.length + 1).trim();
+    if (/^[>|][+-]?$/.test(value)) {
+      const parts = [];
+      for (let i = at + 1; i < lines.length && /^\s+\S/.test(lines[i]); i++) parts.push(lines[i].trim());
+      value = parts.join(" ");
+    }
+    return value.replace(/^["']|["']$/g, "");
+  };
   return { dir, name: get("name") || dir, description: get("description") };
 }
 
