@@ -1,0 +1,39 @@
+{
+  "name": "__PROJECT_NAME__",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "workspaces": ["apps/web"],
+  "scripts": {
+    "setup:api": "node scripts/setup-api.mjs",
+    "dev": "concurrently -n api,web -c blue,green \"npm run dev:api\" \"npm run dev -w apps/web\"",
+    "dev:api": "node scripts/py.mjs -m uvicorn app.main:app --reload --port 3001",
+    "build": "npm run build -w apps/web",
+    "lint": "eslint . && npm run lint:api",
+    "lint:api": "node scripts/py.mjs -m ruff check .",
+    "typecheck": "npm run typecheck -w apps/web && npm run typecheck:api",
+    "typecheck:api": "node scripts/py.mjs -m mypy app",
+    "test": "npm run test -w apps/web && npm run test:api",
+    "test:api": "node scripts/py.mjs -m pytest",
+    "test:e2e": "playwright test",
+    "contract:gen": "node scripts/py.mjs scripts/export_openapi.py && openapi-typescript packages/contract/openapi.json -o apps/web/src/lib/api/schema.d.ts",
+    "contract:check": "npm run contract:gen && git diff --exit-code -- packages/contract apps/web/src/lib/api",
+    "check:budget": "node scripts/check-budget.mjs",
+    "check:libs": "node scripts/check-libs.mjs",
+    "skills:index": "node scripts/build-skills-index.mjs",
+    "predev": "node scripts/build-skills-index.mjs --quiet",
+    "prebuild": "node scripts/build-skills-index.mjs --quiet"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.0",
+    "@playwright/test": "^1.63.0",
+    "concurrently": "^10.0.5",
+    "eslint": "^9.39.5",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "globals": "^17.12.0",
+    "js-tiktoken": "^1.0.20",
+    "openapi-typescript": "^7.13.0",
+    "typescript": "~5.9.3",
+    "typescript-eslint": "^8.70.0"
+  }
+}

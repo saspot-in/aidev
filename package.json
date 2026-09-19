@@ -1,0 +1,19 @@
+{
+  "name": "aidev",
+  "version": "0.1.0",
+  "description": "Project scaffolder with an agent-friendly context layer (.ai/ map, module cards, plans, skills index)",
+  "type": "module",
+  "bin": { "aidev": "src/cli.mjs" },
+  "files": ["src", "templates", "skills"],
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "skills:index": "node templates/base/scripts/build-skills-index.mjs --skills-dir skills --out skills/INDEX.md",
+    "check:budget": "cd templates/base && node scripts/check-budget.mjs"
+  },
+  "dependencies": {
+    "@clack/prompts": "^1.8.1"
+  },
+  "devDependencies": {
+    "js-tiktoken": "^1.0.20"
+  }
+}

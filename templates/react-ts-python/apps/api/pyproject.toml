@@ -1,0 +1,18 @@
+[tool.pytest.ini_options]
+testpaths = ["app"]
+pythonpath = ["."]
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "N", "SIM", "C90", "PLR0913"]
+
+[tool.mypy]
+strict = true
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10
+
+[tool.ruff.lint.pylint]
+max-args = 5
